@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { sendMessage } from "../twiloSetup/sendMessage.js";
+import { sendMessage } from "../twilioSetup/sendMessage.js";
 
 export const userRequest = async(req: Request, res: Response) => {
     try{
