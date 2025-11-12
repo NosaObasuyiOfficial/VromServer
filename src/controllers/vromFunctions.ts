@@ -3,7 +3,7 @@ import { sendMessage } from "../twilioSetup/sendMessage.js";
 
 export const userRequest = async(req: Request, res: Response) => {
     try{
-        await sendMessage("Nosa", "✅ You're already registered as a rider.");
+        await sendMessage("2348108505829", "✅ You're already registered as a rider.");
 
     }catch(error){
             res.status(500).json({
