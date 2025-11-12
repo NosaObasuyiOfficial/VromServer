@@ -7,11 +7,12 @@ const client = twilio(
 
 export const sendMessage = async (to: string, body: string): Promise<void> => {
   try {
-    await client.messages.create({
+   const msg = await client.messages.create({
       from: process.env.TWILIO_WHATSAPP_NUMBER!,
       to: `whatsapp:${to}`,
       body,
     });
+        console.log("Twilio Response:", msg.sid);
   } catch (error) {
     console.error("Sorry! Failed to send message:", error);
   }
