@@ -12,6 +12,7 @@ export const userRequest = async (req: Request, res: Response) => {
     const whatsappMessage = req.body.Body?.trim().toLowerCase();
     const recipientPhone = (req.body.From as string).replace("whatsapp:", "");
     let userDetails = await User.findOne({ phone: recipientPhone });
+    console.log("yes", userDetails)
     if (!userDetails) {
       const addUser = await User.create({
         phone: recipientPhone,
