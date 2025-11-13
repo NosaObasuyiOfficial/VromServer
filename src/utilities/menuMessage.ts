@@ -8,4 +8,4 @@ export const menuMessage2 =
  "❓ Please reply with *1*, *2*, or *3*."
 
 export const helpMessage =
- "Do you have any concerns? If yes, clearly state your problem.\n\nTo re-register as either a CUSTOMER or RIDER, reply with *REG412*"
+ "DO YOU HAVE ANY CONCERNS? If yes, clearly state your problem.\n\nTo re-register as either a *CUSTOMER* or *RIDER*, reply with *REG412*"
