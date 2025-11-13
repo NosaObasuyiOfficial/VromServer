@@ -58,6 +58,7 @@ export const userRequest = async (req: Request, res: Response) => {
 
       if (!userDetails){
         await sendMessage(recipientPhone, menuMessage);
+        await sendMessage(recipientPhone, menuMessage2);
         res.status(200).send("New user added");
       }else{
 
