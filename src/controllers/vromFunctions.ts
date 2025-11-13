@@ -24,7 +24,6 @@ export const userRequest = async (req: Request, res: Response) => {
     await sendMessage("+2348108505829", "❓ Please reply with 1, 2, or 3.");
   }
 
-
     console.log("function", f);
   } catch (error) {
     res.status(500).json({
