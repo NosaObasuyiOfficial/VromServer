@@ -4,6 +4,8 @@ import { sendMessage } from "../twilioSetup/sendMessage.js";
 export const userRequest = async (req: Request, res: Response) => {
   try {
           const message = req.body.body?.trim();
+          console.log("dsd", req.body.body)
+          console.log("dsd", req.body.Body)
 
     //   const f = await sendMessage("+2348108505829", "You're already registered as a rider.");
     const f = await sendMessage(
