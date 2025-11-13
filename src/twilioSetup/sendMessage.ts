@@ -12,7 +12,6 @@ export const sendMessage = async (to: string, body: string): Promise<void> => {
       to: `whatsapp:${to}`,
       body,
     });
-        console.log("Twilio Response:", msg);
   } catch (error) {
     console.error("Sorry! Failed to send message:", error);
   }
