@@ -5,6 +5,10 @@ import {
   menuMessage,
   menuMessage2,
   helpMessage,
+  licensePromptMessage,
+  namePromptMessage,
+  firstNamePromptMessage,
+  licensePlatePromptMessage,
 } from "../utilities/menuMessage.js";
 
 export const userRequest = async (req: Request, res: Response) => {
@@ -27,7 +31,7 @@ export const userRequest = async (req: Request, res: Response) => {
     if (whatsappMessage === "1" && userDetails) {
       await sendMessage(
         recipientPhone,
-        "THANK YOU for considering registering as a *Vrom Rider*.\n\nYour registration process will begin shortly."
+        "🙏THANK YOU for considering registering as a *Vrom Rider*.\n\nYour registration process will begin shortly."
       );
       userDetails!.state = "registeringAsARider";
       userDetails!.processingState = "1";
@@ -35,12 +39,12 @@ export const userRequest = async (req: Request, res: Response) => {
       if (!saveDetails) {
         res.status(500).send("Failed to save user details");
       }
+      await sendMessage(recipientPhone, firstNamePromptMessage);
+    } else if (whatsappMessage === "2" && userDetails) {
       await sendMessage(
         recipientPhone,
-        "Please REPLY with your *first name*.\n\nPlease note:\nTo cancel❌ this process REPLY with *409*"
+        "Please REPLY with your *current location*\n\n e.g., 3, Wisdom Lake, Off...\n\nPlease note:\nTo CANCEL❌ this process REPLY with *409*"
       );
-    } else if (whatsappMessage === "2" && userDetails) {
-      await sendMessage(recipientPhone, "Please REPLY with your *current location*\n\n e.g., 3, Wisdom Lake, Off...\n\nPlease note:\nTo CANCEL❌ this process REPLY with *409*");
     } else if (whatsappMessage === "3" && userDetails) {
       await sendMessage(recipientPhone, helpMessage);
     } else if (whatsappMessage === "409" && userDetails) {
@@ -69,10 +73,7 @@ export const userRequest = async (req: Request, res: Response) => {
           const nameRegex = /^[A-Za-z]{2,}$/;
 
           if (!nameRegex.test(registerName) || !registerName) {
-            await sendMessage(
-              recipientPhone,
-              "Please ENTER a *valid name* (letters only, at least 2 characters).\n\nPlease note:\nTo CANCEL❌ this process REPLY with *409*"
-            );
+            await sendMessage(recipientPhone, namePromptMessage);
             res.status(400).send("Invalid Name");
           } else {
             await User.findOneAndUpdate(
@@ -86,10 +87,7 @@ export const userRequest = async (req: Request, res: Response) => {
               res.status(500).send("Failed to save user details");
             }
 
-            await sendMessage(
-              recipientPhone,
-              `THANK YOU, Please ENTER your *license plate number*.\n\nPlease note:\nTo *CANCEL*❌ this process REPLY with *409*`
-            );
+            await sendMessage(recipientPhone, licensePlatePromptMessage);
           }
         } else if (
           userDetails!.state === "registeringAsARider" &&
@@ -99,14 +97,12 @@ export const userRequest = async (req: Request, res: Response) => {
           const licenseNoRegex = /^[A-Za-z0-9]+$/;
 
           if (!licenseNo || !licenseNoRegex.test(licenseNo)) {
-            await sendMessage(
-              recipientPhone,
-              "Please ENTER a *valid license number*.\n\nPlease note:\nTo *CANCEL*❌ this process REPLY with *EXIT*"
-            );
+            await sendMessage(recipientPhone, licensePromptMessage);
           } else {
             await sendMessage(
               recipientPhone,
-              `✅THANK YOU *${userDetails!.name.toUpperCase()}* for registering as a *Vrom Rider*.\n\nYou will get a notification once your registration is successful.`
+              `✅ *Thank you, ${userDetails!.name.toUpperCase()}!* for registering as a *Vrom Rider* 🏍️.\n\n` +
+                `📩 You’ll receive a notification once your registration has been successfully approved.`
             );
             userDetails!.state = "menu";
             userDetails!.processingState = "1";
@@ -120,7 +116,7 @@ export const userRequest = async (req: Request, res: Response) => {
     }
   } catch (error) {
     res.status(500).json({
-      message: "Cannot make request.",
+      message: "Server error. Cannot make request.",
     });
     console.error(error);
   }
