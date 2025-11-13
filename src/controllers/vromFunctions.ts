@@ -23,6 +23,7 @@ export const userRequest = async (req: Request, res: Response) => {
       if (!addUser) {
         res.status(500).send("Failed to add new user");
       }
+
     }
 
     if (whatsappMessage === "1") {
@@ -54,6 +55,12 @@ export const userRequest = async (req: Request, res: Response) => {
       await sendMessage(recipientPhone, menuMessage);
       await sendMessage(recipientPhone, menuMessage2);
     } else {
+
+      if (!userDetails){
+        await sendMessage(recipientPhone, menuMessage);
+        res.status(200).send("New user added");
+      }else{
+
       if (userDetails!.state === "menu") {
         await sendMessage(recipientPhone, menuMessage);
         await sendMessage(recipientPhone, menuMessage2);
@@ -116,6 +123,12 @@ export const userRequest = async (req: Request, res: Response) => {
           );
         }
       }
+
+
+
+    }
+
+
     }
   } catch (error) {
     res.status(500).json({
