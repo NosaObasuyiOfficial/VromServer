@@ -3,10 +3,8 @@ export const menuMessage =
   "Please choose what you'd like to do:\n\n" +
   "1️⃣ *Register as a Rider* 🏍️\n" +
   "2️⃣ *Request a Ride* 🚕\n" +
-  "3️⃣ *Help / Support* 💬\n\n" 
-
-export const menuMessage2 =
-"Reply with the number (*1*, *2*, or *3*) to continue. 😊";
+  "3️⃣ *Help / Support* 💬\n\n"+
+  "Reply with the number (*1*, *2*, or *3*) to continue. 😊";
 
 export const helpMessage = 
   "💭 *Do you have any concerns or issues?* \n" +

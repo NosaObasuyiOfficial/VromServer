@@ -1,19 +1,18 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-export interface IRideRequest extends Document {
-  userPhone: string;
-  destination: string;
-  status: "pending" | "accepted" | "completed" | "cancelled";
-  acceptedBy: string | null;
-  createdAt: Date;
+export interface IRiderRequest extends Document {
+  name: string;
+  phone: string;
+  licenseNo: string;
+  code: string;
+  registeredAt: Date;
 }
 
-const RideRequestSchema = new Schema<IRideRequest>({
-  userPhone: { type: String, required: true },
-  destination: { type: String, required: true },
-  status: { type: String, default: "pending" },
-  acceptedBy: { type: String, default: null },
-  createdAt: { type: Date, default: Date.now },
+const RiderRequestSchema = new Schema<IRiderRequest>({
+  name: { type: String, required: false },
+  phone: { type: String, required: false, unique: false },  
+  licenseNo: { type: String, required: false },
+  registeredAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model<IRideRequest>("RideRequest", RideRequestSchema);
+export default mongoose.model<IRiderRequest>("RiderRequest", RiderRequestSchema);
