@@ -308,10 +308,14 @@ export const userRequest = async (req: Request, res: Response) => {
             const code = await generateUniqueACCode();
             const registeredAt = formatDate();
 
-            const riderReq = await riderRequest.findOneAndUpdate(
+            await riderRequest.findOneAndUpdate(
               { phone: recipientPhone },
               { licenseNo: licenseNo, registeredAt, code }
             );
+
+            const riderReq = await riderRequest.findOne({
+              phone: recipientPhone,
+            });
 
             await Promise.all(
               admin.map((num) =>
@@ -322,7 +326,7 @@ export const userRequest = async (req: Request, res: Response) => {
                     riderReq!.phone,
                     riderReq!.licenseNo,
                     riderReq!.registeredAt,
-                    riderReq!.code
+                    riderReq!.code.toUpperCase()
                   )
                 )
               )
@@ -367,7 +371,8 @@ export const userRequest = async (req: Request, res: Response) => {
             res.status(400).send("Invalid location");
           } else {
             const acceptCode = await generateAcceptCode();
-            const order = await RideOrder.findOneAndUpdate(
+
+            await RideOrder.findOneAndUpdate(
               { userPhone: recipientPhone },
               { destination: userDestination, acceptCode }
             );
@@ -376,6 +381,10 @@ export const userRequest = async (req: Request, res: Response) => {
               recipientPhone,
               "*Thank you for choosing Vrom.*\nPlease wait... while we assign you a rider.\n\nIf you wish to cancel this process, reply with 439 ❌"
             );
+
+            const order = await RideOrder.findOne({
+              userPhone: recipientPhone,
+            });
 
             const availablePhones = await Rider.find(
               { status: "available" },
