@@ -148,6 +148,7 @@ export const userRequest = async (req: Request, res: Response) => {
 
       await SuccessfulOrder.findOneAndDelete({ userPhone: recipientPhone });
       res.status(200).send("Request successful!");
+      
     } else if (
       `${whatsappMessage.split("")[0]}${whatsappMessage.split("")[1]}` ===
         "vr" &&
@@ -169,7 +170,7 @@ export const userRequest = async (req: Request, res: Response) => {
         if (riderDetails!.code.toLowerCase() === whatsappMessage) {
           await sendMessage(
             riderDetails!.phone,
-            `*CONGRATULATIONS! You have been registered as a *Vrom Rider🏍️.\n\nSAFETY FIRST ALWAYS!!!*.`
+            `*CONGRATULATIONS! You have been registered as a Vrom Rider🏍️.\n\nSAFETY FIRST ALWAYS!!!*.`
           );
 
           await User.findOneAndUpdate(
@@ -221,9 +222,9 @@ export const userRequest = async (req: Request, res: Response) => {
       if (!rideDets) {
         await sendMessage(
           riderDetails!.phone,
-          `*SORRY! This ride has already been accepted*.`
+          `*Invalid acceptance code*.`
         );
-        res.status(500).send("Failed to find rider details");
+        res.status(500).send("Failed to find ride order details");
       }
 
       if (acceptCode === rideDets!.acceptCode) {
@@ -242,8 +243,14 @@ export const userRequest = async (req: Request, res: Response) => {
           res.status(500).send("Failed to add successful order");
         }
 
+           await User.findOneAndUpdate(
+              { phone: rideDets!.userPhone },
+              { rideRequest: "4" }
+            );
+
         await RideOrder.findOneAndDelete({ acceptCode });
         res.status(200).send("Request successful!");
+
       } else {
         await sendMessage(riderDetails!.phone, `*Invalid acceptance code*.`);
         res.status(500).send("Failed to find rider details");
@@ -379,7 +386,7 @@ export const userRequest = async (req: Request, res: Response) => {
 
             await sendMessage(
               recipientPhone,
-              "*Thank you for choosing Vrom.*\nPlease wait... while we assign you a rider.\n\nIf you wish to cancel this process, reply with 439 ❌"
+              "*Thank you for choosing Vrom.*\nPlease wait while we assign you a rider.\n\nIf you wish to cancel this process, reply with 439 ❌"
             );
 
             const order = await RideOrder.findOne({
@@ -422,6 +429,16 @@ export const userRequest = async (req: Request, res: Response) => {
           await sendMessage(
             recipientPhone,
             "*Thank you for choosing Vrom.*\nPlease wait while we assign you a rider.\n\nIf you wish to cancel this process, reply with 439 ❌"
+          );
+          res.status(200).send("Request successful!");
+        }
+        else if (
+          userDetails!.state === "RequestingARide" &&
+          userDetails!.rideRequest === "4"
+        ) {
+          await sendMessage(
+            recipientPhone,
+            "To go back to *MENU* reply with *447* ❌"
           );
           res.status(200).send("Request successful!");
         }

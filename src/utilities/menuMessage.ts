@@ -35,7 +35,7 @@ export function riderRegisterationAlert(
   registrationDate: string,
   code: string
 ) {
-  return `*New Rider Registration Request*🚖\n\nName: ${name}\nPhone: ${phone}\nLicense No: ${licenseNo}\nRegistered: ${registrationDate}\n\n✔️ To accept, send ${code}`;
+  return `*New Rider Registration Request*🚖\n\nName: ${name}\nPhone: ${phone}\nLicense No: ${licenseNo}\Requested At: ${registrationDate}\n\n✔️ To accept, send ${code}`;
 }
 
 export const locationPromptMessage =
@@ -55,5 +55,5 @@ export function userRideNotification(
   name: string,
   phone: string
 ) {
-  return `*RIDE ACCEPTED*🚖\n\nRider Deatails:\nName: ${name}\n Phone Number: ${phone}\n\nHave a SAFE RIDE!!\n\n⚠️ To *cancel* this ride, reply with *447* ❌`;
+  return `*YOUR RIDE HAS BEEN ACCEPTED*🚖\n\n*Rider details*\nName: *${name}*\nPhone Number: ${phone}\n\nHave a SAFE RIDE!!\n\n⚠️ To *CANCEL* this ride, reply with *447* ❌`;
 }

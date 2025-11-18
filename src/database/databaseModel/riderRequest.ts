@@ -16,4 +16,5 @@ const RiderRequestSchema = new Schema<IRiderRequest>({
   registeredAt: { type: String, required: false },
 });
 
+
 export default mongoose.model<IRiderRequest>("RiderRequest", RiderRequestSchema);
