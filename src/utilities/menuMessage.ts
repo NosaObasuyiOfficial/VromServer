@@ -48,7 +48,7 @@ export function rideNotification(
   phoneNumber: string,
   code: string
 ) {
-  return `*NEW RIDE ALERT*🚖\n\Location: ${location}\nDestination: ${destination}\nPhone Number: ${phoneNumber}\n\n✔️ To accept this ride, send ${code}`;
+  return `*NEW RIDE ALERT*🚖\n\nLocation: *${location}*\nDestination: *${destination}*\nPhone Number: ${phoneNumber}\n\n✔️ To accept this ride, send ${code}`;
 }
 
 export function userRideNotification(
