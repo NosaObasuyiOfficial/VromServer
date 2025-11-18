@@ -12,6 +12,7 @@ const RiderRequestSchema = new Schema<IRiderRequest>({
   name: { type: String, required: false },
   phone: { type: String, required: false, unique: false },  
   licenseNo: { type: String, required: false },
+  code: { type: String, required: false },
   registeredAt: { type: String, required: false },
 });
 

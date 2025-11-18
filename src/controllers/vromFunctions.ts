@@ -305,7 +305,7 @@ export const userRequest = async (req: Request, res: Response) => {
               res.status(500).send("Failed to save user details");
             }
 
-            const code = await generateUniqueACCode();
+            const code = await generateUniqueACCode();            
             const registeredAt = formatDate();
 
             await riderRequest.findOneAndUpdate(
