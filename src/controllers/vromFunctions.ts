@@ -322,7 +322,7 @@ export const userRequest = async (req: Request, res: Response) => {
                     riderReq!.phone,
                     riderReq!.licenseNo,
                     riderReq!.registeredAt,
-                    riderReq!.code.toUpperCase()
+                    riderReq!.code
                   )
                 )
               )
@@ -412,7 +412,7 @@ export const userRequest = async (req: Request, res: Response) => {
         ) {
           await sendMessage(
             recipientPhone,
-            "*Thank you for choosing Vrom.*\nPlease wait... while we assign you a rider.\n\nIf you wish to cancel this process, reply with 439 ❌"
+            "*Thank you for choosing Vrom.*\nPlease wait while we assign you a rider.\n\nIf you wish to cancel this process, reply with 439 ❌"
           );
           res.status(200).send("Request successful!");
         }
