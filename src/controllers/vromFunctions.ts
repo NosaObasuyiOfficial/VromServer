@@ -148,7 +148,7 @@ export const userRequest = async (req: Request, res: Response) => {
 
       await SuccessfulOrder.findOneAndDelete({ userPhone: recipientPhone });
       res.status(200).send("Request successful!");
-      
+
     } else if (
       `${whatsappMessage.split("")[0]}${whatsappMessage.split("")[1]}` ===
         "vr" &&
@@ -163,14 +163,14 @@ export const userRequest = async (req: Request, res: Response) => {
           code: whatsappMessage,
         });
         if (!riderDetails) {
-          await sendMessage(recipientPhone, `*Incorrect Code*.`);
+          await sendMessage(recipientPhone, `*Incorrect code*.`);
           res.status(500).send("Failed to find rider details");
         }
 
         if (riderDetails!.code.toLowerCase() === whatsappMessage) {
           await sendMessage(
             riderDetails!.phone,
-            `*CONGRATULATIONS! You have been registered as a Vrom Rider🏍️.\n\nSAFETY FIRST ALWAYS!!!*.`
+            `*CONGRATULATIONS! You have been registered as a Vrom Rider*🏍️.\n\nSAFETY FIRST ALWAYS!!!.`
           );
 
           await User.findOneAndUpdate(
@@ -190,7 +190,7 @@ export const userRequest = async (req: Request, res: Response) => {
           await riderRequest.findOneAndDelete({ phone: riderDetails!.phone });
           res.status(200).send("Request successful!");
         } else {
-          await sendMessage(recipientPhone, `*Incorrect Code*.`);
+          await sendMessage(recipientPhone, `*Incorrect code*`);
           res.status(400).send("Wrong code");
         }
       } else {
@@ -222,7 +222,7 @@ export const userRequest = async (req: Request, res: Response) => {
       if (!rideDets) {
         await sendMessage(
           riderDetails!.phone,
-          `*Invalid acceptance code*.`
+          `*Invalid code*`
         );
         res.status(500).send("Failed to find ride order details");
       }
@@ -252,7 +252,7 @@ export const userRequest = async (req: Request, res: Response) => {
         res.status(200).send("Request successful!");
 
       } else {
-        await sendMessage(riderDetails!.phone, `*Invalid acceptance code*.`);
+        await sendMessage(riderDetails!.phone, `*Invalid code*`);
         res.status(500).send("Failed to find rider details");
       }
     } else {
@@ -302,7 +302,7 @@ export const userRequest = async (req: Request, res: Response) => {
           } else {
             await sendMessage(
               recipientPhone,
-              `✅ *Thank you, for registering as a *Vrom Rider* 🏍️.\n\n` +
+              `✅ *Thank you, for registering as a Vrom Rider* 🏍️.\n\n` +
                 `📩 You’ll receive a notification once your registration has been successfully approved.`
             );
             userDetails!.state = "menu";
@@ -438,7 +438,7 @@ export const userRequest = async (req: Request, res: Response) => {
         ) {
           await sendMessage(
             recipientPhone,
-            "To go back to *MENU* reply with *447* ❌"
+            "To return back to *MENU*, reply with *447*"
           );
           res.status(200).send("Request successful!");
         }
