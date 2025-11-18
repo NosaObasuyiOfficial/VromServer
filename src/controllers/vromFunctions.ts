@@ -101,7 +101,7 @@ export const userRequest = async (req: Request, res: Response) => {
       }
       await sendMessage(
         recipientPhone,
-        "*Please reply with your current location.*\n📍 Example: 3, Wisdom Lake, Off…\n\nIf you wish to cancel this process, reply with 439 ❌"
+        "*Please reply with your current location.*\n📍 Example: Wisdom Lake, Off…\n\nIf you wish to cancel this process, reply with 439 ❌"
       );
 
       userDetails!.state = "RequestingARide";
@@ -340,13 +340,13 @@ export const userRequest = async (req: Request, res: Response) => {
             res.status(400).send("Invalid location");
           } else {
             await RideOrder.findOneAndUpdate(
-              { phone: recipientPhone },
+              { userPhone: recipientPhone },
               { location: userLocation }
             );
 
             await sendMessage(
               recipientPhone,
-              "*Please reply with your destination.*\n📍 Example: 3, Wisdom Lake, Off…\n\nIf you wish to cancel this process, reply with 439 ❌"
+              "*Please reply with your destination.*\n📍 Example: Wisdom Lake, Off…\n\nIf you wish to cancel this process, reply with 439 ❌"
             );
 
             userDetails!.rideRequest = "2";
@@ -368,7 +368,7 @@ export const userRequest = async (req: Request, res: Response) => {
           } else {
             const acceptCode = generateAcceptCode();
             const order = await RideOrder.findOneAndUpdate(
-              { phone: recipientPhone },
+              { userPhone: recipientPhone },
               { destination: userDestination, acceptCode }
             );
 
