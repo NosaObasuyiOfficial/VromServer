@@ -1,17 +1,18 @@
 import riderRequest from "../database/databaseModel/riderRequest.js";
+import RideOrder from "../database/databaseModel/rideOrder.js";
 
 export async function generateUniqueACCode(): Promise<string> {
-function generate4Digit(): string {
-  const randomNumber = Math.floor(1000 + Math.random() * 9000); 
-  return `VR${randomNumber}`;
-}
+  function generate4Digit(): string {
+    const randomNumber = Math.floor(1000 + Math.random() * 9000);
+    return `vr${randomNumber}`;
+  }
 
   let code: string;
   let exists = true;
 
   while (exists) {
     const newDigits = generate4Digit();
-    code = `VR${newDigits}`;
+    code = `vr${newDigits}`;
 
     await riderRequest.exists({ code });
   }
@@ -25,17 +26,33 @@ export function formatDate(date: Date = new Date()): string {
   const getDaySuffix = (day: number) => {
     if (day >= 11 && day <= 13) return "th";
     switch (day % 10) {
-      case 1: return "st";
-      case 2: return "nd";
-      case 3: return "rd";
-      default: return "th";
+      case 1:
+        return "st";
+      case 2:
+        return "nd";
+      case 3:
+        return "rd";
+      default:
+        return "th";
     }
   };
 
   const suffix = getDaySuffix(day);
 
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
   const month = months[date.getMonth()];
   const year = date.getFullYear();
@@ -50,3 +67,21 @@ export function formatDate(date: Date = new Date()): string {
   return `${day}${suffix} ${month}, ${year}. ${formattedHours}:${minutes}${ampm}`;
 }
 
+export async function generateAcceptCode(): Promise<string> {
+  function generate4Digit(): string {
+    const randomNumber = Math.floor(1000 + Math.random() * 9000);
+    return `ac${randomNumber}`;
+  }
+
+  let acceptCode: string;
+  let exists = true;
+
+  while (exists) {
+    const newDigits = generate4Digit();
+    acceptCode = `ac${newDigits}`;
+
+    await RideOrder.exists({ acceptCode });
+  }
+
+  return acceptCode!;
+}

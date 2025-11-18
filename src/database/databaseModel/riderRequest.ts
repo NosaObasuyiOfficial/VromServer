@@ -5,14 +5,14 @@ export interface IRiderRequest extends Document {
   phone: string;
   licenseNo: string;
   code: string;
-  registeredAt: Date;
+  registeredAt: string;
 }
 
 const RiderRequestSchema = new Schema<IRiderRequest>({
   name: { type: String, required: false },
   phone: { type: String, required: false, unique: false },  
   licenseNo: { type: String, required: false },
-  registeredAt: { type: Date, default: Date.now },
+  registeredAt: { type: String, required: false },
 });
 
 export default mongoose.model<IRiderRequest>("RiderRequest", RiderRequestSchema);

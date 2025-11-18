@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { sendMessage } from "../twilioSetup/sendMessage.js";
 import User from "../database/databaseModel/user.js";
 import riderRequest from "../database/databaseModel/riderRequest.js";
+import Rider from "../database/databaseModel/rider.js";
 import {
   menuMessage,
   helpMessage,
@@ -9,12 +10,19 @@ import {
   namePromptMessage,
   firstNamePromptMessage,
   licensePlatePromptMessage,
+  riderRegisterationAlert,
+  locationPromptMessage,
+  rideNotification,
+  userRideNotification,
 } from "../utilities/menuMessage.js";
 import {
   generateUniqueACCode,
   formatDate,
+  generateAcceptCode,
 } from "../utilities/helperFunctions.js";
 import dotenv from "dotenv";
+import RideOrder from "../database/databaseModel/rideOrder.js";
+import SuccessfulOrder from "../database/databaseModel/successfulOrders.js";
 
 dotenv.config();
 const {
@@ -22,6 +30,8 @@ const {
   ADMIN_WHATSAPP_NUMBER2,
   ADMIN_WHATSAPP_NUMBER3,
 } = process.env;
+
+const admin = [ADMIN_WHATSAPP_NUMBER1!];
 
 export const userRequest = async (req: Request, res: Response) => {
   try {
@@ -83,10 +93,25 @@ export const userRequest = async (req: Request, res: Response) => {
         res.status(200).send("Request successful!");
       }
     } else if (whatsappMessage === "2" && userDetails) {
+      const order = await RideOrder.create({
+        userPhone: recipientPhone,
+      });
+      if (!order) {
+        res.status(500).send("Failed to add ride order");
+      }
       await sendMessage(
         recipientPhone,
-        "Please REPLY with your *current location*\n\n e.g., 3, Wisdom Lake, Off...\n\nPlease note:\nTo CANCEL❌ this process REPLY with *409*"
+        "*Please reply with your current location.*\n📍 Example: 3, Wisdom Lake, Off…\n\nIf you wish to cancel this process, reply with 439 ❌"
       );
+
+      userDetails!.state = "RequestingARide";
+      userDetails!.rideRequest = "1";
+      const saveDetails = await userDetails!.save();
+      if (!saveDetails) {
+        res.status(500).send("Failed to save user details");
+      }
+
+      res.status(200).send("Request successful!");
     } else if (whatsappMessage === "3" && userDetails) {
       await sendMessage(recipientPhone, helpMessage);
     } else if (whatsappMessage === "409" && userDetails) {
@@ -100,9 +125,32 @@ export const userRequest = async (req: Request, res: Response) => {
 
       await riderRequest.findOneAndDelete({ phone: recipientPhone });
       res.status(200).send("Request successful!");
+    } else if (whatsappMessage === "439" && userDetails) {
+      userDetails!.state = "menu";
+      userDetails!.rideRequest = "";
+      const saveDetails = await userDetails!.save();
+      if (!saveDetails) {
+        res.status(500).send("Failed to save user details");
+      }
+      await sendMessage(recipientPhone, menuMessage);
+
+      await RideOrder.findOneAndDelete({ userPhone: recipientPhone });
+      res.status(200).send("Request successful!");
+    } else if (whatsappMessage === "447" && userDetails) {
+      userDetails!.state = "menu";
+      userDetails!.rideRequest = "";
+
+      const saveDetails = await userDetails!.save();
+      if (!saveDetails) {
+        res.status(500).send("Failed to save user details");
+      }
+      await sendMessage(recipientPhone, menuMessage);
+
+      await SuccessfulOrder.findOneAndDelete({ userPhone: recipientPhone });
+      res.status(200).send("Request successful!");
     } else if (
       `${whatsappMessage.split("")[0]}${whatsappMessage.split("")[1]}` ===
-        "VR" &&
+        "vr" &&
       userDetails
     ) {
       if (
@@ -118,17 +166,24 @@ export const userRequest = async (req: Request, res: Response) => {
           res.status(500).send("Failed to find rider details");
         }
 
-        if (riderDetails!.code === whatsappMessage) {
+        if (riderDetails!.code.toLowerCase() === whatsappMessage) {
           await sendMessage(
             riderDetails!.phone,
             `*CONGRATULATIONS! You have been registered as a *Vrom Rider🏍️.\n\nSAFETY FIRST ALWAYS!!!*.`
           );
 
-          userDetails!.status = "rider";
-          userDetails!.processingState = "4";
-          const saveDetails = await userDetails!.save();
-          if (!saveDetails) {
-            res.status(500).send("Failed to save user details");
+          await User.findOneAndUpdate(
+            { phone: riderDetails!.phone },
+            { status: "rider", processingState: "4" }
+          );
+
+          const addRider = await Rider.create({
+            name: riderDetails!.name,
+            phone: riderDetails!.phone,
+            licenseNo: riderDetails!.licenseNo,
+          });
+          if (!addRider) {
+            res.status(500).send("Failed to add new rider");
           }
 
           await riderRequest.findOneAndDelete({ phone: riderDetails!.phone });
@@ -143,6 +198,55 @@ export const userRequest = async (req: Request, res: Response) => {
           `*SORRY! You are not authorized to make this request*.`
         );
         res.status(401).send("Request successful!");
+      }
+    } else if (
+      `${whatsappMessage.split("")[0]}${whatsappMessage.split("")[1]}` ===
+        "ac" &&
+      userDetails
+    ) {
+      const acceptCode = whatsappMessage;
+      let riderDetails = await Rider.findOne({
+        phone: recipientPhone,
+      });
+
+      if (!riderDetails) {
+        await sendMessage(
+          riderDetails!.phone,
+          `*SORRY! You are not authorized to make this request*.`
+        );
+        res.status(500).send("Failed to find rider details");
+      }
+
+      let rideDets = await RideOrder.findOne({ acceptCode });
+      if (!rideDets) {
+        await sendMessage(
+          riderDetails!.phone,
+          `*SORRY! This ride has already been accepted*.`
+        );
+        res.status(500).send("Failed to find rider details");
+      }
+
+      if (acceptCode === rideDets!.acceptCode) {
+        sendMessage(
+          rideDets!.userPhone,
+          userRideNotification(riderDetails!.name, riderDetails!.phone)
+        );
+
+        const addOrder = await SuccessfulOrder.create({
+          userPhone: rideDets!.userPhone,
+          location: rideDets!.location,
+          destination: rideDets!.destination,
+          riderPhone: riderDetails!.phone,
+        });
+        if (!addOrder) {
+          res.status(500).send("Failed to add successful order");
+        }
+
+        await RideOrder.findOneAndDelete({ acceptCode });
+        res.status(200).send("Request successful!");
+      } else {
+        await sendMessage(riderDetails!.phone, `*Invalid acceptance code*.`);
+        res.status(500).send("Failed to find rider details");
       }
     } else {
       if (!userDetails) {
@@ -204,15 +308,113 @@ export const userRequest = async (req: Request, res: Response) => {
             const code = generateUniqueACCode();
             const registeredAt = formatDate();
 
-            await riderRequest.findOneAndUpdate(
+            const riderReq = await riderRequest.findOneAndUpdate(
               { phone: recipientPhone },
               { licenseNo: licenseNo, registeredAt, code }
             );
 
-            //Write the code here to send the reqests to admin and also to send the details of the request
+            await Promise.all(
+              admin.map((num) =>
+                sendMessage(
+                  num,
+                  riderRegisterationAlert(
+                    riderReq!.name,
+                    riderReq!.phone,
+                    riderReq!.licenseNo,
+                    riderReq!.registeredAt,
+                    riderReq!.code.toUpperCase()
+                  )
+                )
+              )
+            );
 
             res.status(200).send("Request successful!");
           }
+        } else if (
+          userDetails!.state === "RequestingARide" &&
+          userDetails!.rideRequest === "1"
+        ) {
+          const userLocation = whatsappMessage;
+          if (userLocation.length < 4) {
+            await sendMessage(recipientPhone, locationPromptMessage);
+            res.status(400).send("Invalid location");
+          } else {
+            await RideOrder.findOneAndUpdate(
+              { phone: recipientPhone },
+              { location: userLocation }
+            );
+
+            await sendMessage(
+              recipientPhone,
+              "*Please reply with your destination.*\n📍 Example: 3, Wisdom Lake, Off…\n\nIf you wish to cancel this process, reply with 439 ❌"
+            );
+
+            userDetails!.rideRequest = "2";
+            const saveDetails = await userDetails!.save();
+            if (!saveDetails) {
+              res.status(500).send("Failed to save user details");
+            }
+
+            res.status(200).send("Request successful!");
+          }
+        } else if (
+          userDetails!.state === "RequestingARide" &&
+          userDetails!.rideRequest === "2"
+        ) {
+          const userDestination = whatsappMessage;
+          if (userDestination.length < 4) {
+            await sendMessage(recipientPhone, locationPromptMessage);
+            res.status(400).send("Invalid location");
+          } else {
+            const acceptCode = generateAcceptCode();
+            const order = await RideOrder.findOneAndUpdate(
+              { phone: recipientPhone },
+              { destination: userDestination, acceptCode }
+            );
+
+            await sendMessage(
+              recipientPhone,
+              "*Thank you for choosing Vrom.*\nPlease wait... while we assign you a rider.\n\nIf you wish to cancel this process, reply with 439 ❌"
+            );
+
+            const availablePhones = await Rider.find(
+              { status: "available" },
+              "phone"
+            ).lean();
+
+            const riderPhoneNumbers = availablePhones.map((r) => r.phone);
+
+            await Promise.all(
+              riderPhoneNumbers.map((num) =>
+                sendMessage(
+                  num,
+                  rideNotification(
+                    order!.location,
+                    order!.destination,
+                    order!.userPhone,
+                    order!.acceptCode.toUpperCase()
+                  )
+                )
+              )
+            );
+
+            userDetails!.rideRequest = "3";
+            const saveDetails = await userDetails!.save();
+            if (!saveDetails) {
+              res.status(500).send("Failed to save user details");
+            }
+
+            res.status(200).send("Request successful!");
+          }
+        } else if (
+          userDetails!.state === "RequestingARide" &&
+          userDetails!.rideRequest === "3"
+        ) {
+          await sendMessage(
+            recipientPhone,
+            "*Thank you for choosing Vrom.*\nPlease wait... while we assign you a rider.\n\nIf you wish to cancel this process, reply with 439 ❌"
+          );
+          res.status(200).send("Request successful!");
         }
       }
     }
