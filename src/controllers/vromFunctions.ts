@@ -305,7 +305,7 @@ export const userRequest = async (req: Request, res: Response) => {
               res.status(500).send("Failed to save user details");
             }
 
-            const code = generateUniqueACCode();
+            const code = await generateUniqueACCode();
             const registeredAt = formatDate();
 
             const riderReq = await riderRequest.findOneAndUpdate(
@@ -366,7 +366,7 @@ export const userRequest = async (req: Request, res: Response) => {
             await sendMessage(recipientPhone, locationPromptMessage);
             res.status(400).send("Invalid location");
           } else {
-            const acceptCode = generateAcceptCode();
+            const acceptCode = await generateAcceptCode();
             const order = await RideOrder.findOneAndUpdate(
               { userPhone: recipientPhone },
               { destination: userDestination, acceptCode }
@@ -384,7 +384,7 @@ export const userRequest = async (req: Request, res: Response) => {
 
             const riderPhoneNumbers = availablePhones.map((r) => r.phone);
 
-            // await Promise.all(
+            await Promise.all(
               riderPhoneNumbers.map((num) =>
                 sendMessage(
                   num,
@@ -396,7 +396,7 @@ export const userRequest = async (req: Request, res: Response) => {
                   )
                 )
               )
-            // );
+            );
 
             userDetails!.rideRequest = "3";
             const saveDetails = await userDetails!.save();

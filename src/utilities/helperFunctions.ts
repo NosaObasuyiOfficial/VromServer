@@ -20,7 +20,7 @@ export async function generateUniqueACCode(): Promise<string> {
   // return code!;
 
    const newDigits = generate4Digit();
-    return `vr${newDigits}`;
+    return newDigits;
 }
 
 export function formatDate(date: Date = new Date()): string {
@@ -89,5 +89,5 @@ export async function generateAcceptCode(): Promise<string> {
   // return acceptCode!;
 
   const newDigits = generate4Digit();
-  return `ac${newDigits}`;
+  return newDigits;
 }
