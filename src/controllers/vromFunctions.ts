@@ -384,7 +384,7 @@ export const userRequest = async (req: Request, res: Response) => {
 
             const riderPhoneNumbers = availablePhones.map((r) => r.phone);
 
-            await Promise.all(
+            // await Promise.all(
               riderPhoneNumbers.map((num) =>
                 sendMessage(
                   num,
@@ -396,7 +396,7 @@ export const userRequest = async (req: Request, res: Response) => {
                   )
                 )
               )
-            );
+            // );
 
             userDetails!.rideRequest = "3";
             const saveDetails = await userDetails!.save();
