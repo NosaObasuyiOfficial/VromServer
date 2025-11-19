@@ -146,7 +146,15 @@ export const userRequest = async (req: Request, res: Response) => {
 
       await SuccessfulOrder.findOneAndDelete({ userPhone: recipientPhone });
       res.status(200).send("Request successful!");
-    } else if (
+    } 
+    else if (whatsappMessage === "319" && userDetails) {
+
+      await sendMessage(recipientPhone, "*Your RIDER PROFILE has been deleted. You are no longer a Vrom rider.*");
+
+      await Rider.findOneAndDelete({ phone: recipientPhone });
+      res.status(200).send("Request successful!");
+    } 
+    else if (
       `${whatsappMessage.split("")[0]}${whatsappMessage.split("")[1]}` ===
         "vr" &&
       userDetails
@@ -160,19 +168,19 @@ export const userRequest = async (req: Request, res: Response) => {
           code: whatsappMessage,
         });
         if (!riderDetails) {
-          await sendMessage(recipientPhone, `*Incorrect code or Rider has already been accepted*.`);
+          await sendMessage(recipientPhone, `*Incorrect code or User has already been approved as a rider*`);
           res.status(500).send("Failed to find rider details");
         }
 
         if (riderDetails!.code.toLowerCase() === whatsappMessage) {
           await sendMessage(
             recipientPhone,
-            `✅*RIDER APPROVED*\n\n${riderDetails!.name}\n${riderDetails!.licenseNo}\n${riderDetails!.phone}`
+            `✅ *RIDER APPROVED* \n\n${riderDetails!.name}\n${riderDetails!.licenseNo.toUpperCase()}\n${riderDetails!.phone}`
           );
 
           await sendMessage(
             riderDetails!.phone,
-            `*CONGRATULATIONS! You have been registered as a Vrom Rider*🏍️.\n\nSAFETY FIRST ALWAYS!!!.`
+            `*CONGRATULATIONS! You have been registered as a Vrom Rider*🏍️\n\nSAFETY FIRST ALWAYS!!!`
           );
 
           await User.findOneAndUpdate(
@@ -224,7 +232,7 @@ export const userRequest = async (req: Request, res: Response) => {
       if (!rideDets) {
         await sendMessage(
           riderDetails!.phone,
-          `*Ride request hsa already been accepted*`
+          `*Incorrect code or Ride request has already been accepted*`
         );
         res.status(500).send("Failed to find ride order details");
       }

@@ -8,7 +8,7 @@ export const menuMessage =
 
 export const helpMessage =
   "💭 *Do you have any concerns or issues?* \n" +
-  "Please send your problem to +234820928728, and our team will assist you as soon as possible. 🙌\n\n" +
+  "Please send your problem to +2349078129972, and our team will assist you as soon as possible. 🙌\n\n" +
   "🔁 To DELETE your *rider* profile, simply reply with *319* 📝";
 
 export const licensePromptMessage =
@@ -53,7 +53,7 @@ export function rideNotification(
 }
 
 export function userRideNotification(name: string, phone: string) {
-  return `*YOUR RIDE HAS BEEN ACCEPTED*🚖\n\n*Rider details*\nName: *${name}*\nPhone: ${phone}\n\nHave a SAFE RIDE!\n\n⚠️  To return back to *MENU*, reply with *447*`;
+  return `*YOUR RIDE HAS BEEN ACCEPTED*🚖\n\n***Rider Details***\nName: *${name}*\nPhone: ${phone}\n\nHave a SAFE RIDE!\n\n⚠️  To return back to *MENU*, reply with *447*`;
 }
 
 export function riderRideNotification(
@@ -61,5 +61,5 @@ export function riderRideNotification(
   destination: string,
   phone: string
 ) {
-  return `*YOU HAVE ACCEPTED A RIDE*🚖\n\n*Ride details*\nLocation: *${location}*\nDestination: *${destination}*\nPhone: ${phone}\n\nPlease DRIVE SAFELY!`;
+  return `*YOU HAVE ACCEPTED A RIDE*🚖\n\n***Ride Details***\nLocation: *${location}*\nDestination: *${destination}*\nPhone: ${phone}\n\nPlease DRIVE SAFELY!`;
 }
