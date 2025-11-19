@@ -7,20 +7,20 @@ export async function generateUniqueACCode(): Promise<string> {
     return `vr${randomNumber}`;
   }
 
-  let code: string;
-  let exists = true;
+  // let code: string;
+  // let exists = true;
 
-  while (exists) {
-    const newDigits = generate4Digit();
-    code = newDigits;
+  // while (exists) {
+  //   const newDigits = generate4Digit();
+  //   code = newDigits;
 
-    await riderRequest.exists({ code });
-  }
+  //   await riderRequest.exists({ code });
+  // }
 
-  return code!;
+  // return code!;
 
-  //  const newDigits = generate4Digit();
-  //   return newDigits;
+   const newDigits = generate4Digit();
+    return newDigits;
 }
 
 export function formatDate(date: Date = new Date()): string {
@@ -76,18 +76,18 @@ export async function generateAcceptCode(): Promise<string> {
     return `ac${randomNumber}`;
   }
 
-  let acceptCode: string;
-  let exists = true;
+  // let acceptCode: string;
+  // let exists = true;
 
-  while (exists) {
-    const newDigits = generate4Digit();
-    acceptCode = newDigits;
+  // while (exists) {
+  //   const newDigits = generate4Digit();
+  //   acceptCode = newDigits;
 
-    await RideOrder.exists({ acceptCode });
-  }
+  //   await RideOrder.exists({ acceptCode });
+  // }
 
-  return acceptCode!;
+  // return acceptCode!;
 
-  // const newDigits = generate4Digit();
-  // return newDigits;
+  const newDigits = generate4Digit();
+  return newDigits;
 }
