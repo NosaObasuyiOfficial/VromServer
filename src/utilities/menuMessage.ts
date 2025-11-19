@@ -21,6 +21,7 @@ export const namePromptMessage =
   "⚠️ To *cancel* this process, reply with *409* ❌";
 
 export const firstNamePromptMessage =
+  "Your registration process has begun.\n\n" +
   "🪪 *Please reply with your first name.*\n\n" +
   "⚠️ To *cancel* this process, reply with *409* ❌";
 
@@ -51,10 +52,7 @@ export function rideNotification(
   return `*NEW RIDE ALERT*🚖\n\nLocation: *${location}*\nDestination: *${destination}*\nPhone: ${phoneNumber}\n\n✔️ To accept this ride, send *${code}*`;
 }
 
-export function userRideNotification(
-  name: string,
-  phone: string
-) {
+export function userRideNotification(name: string, phone: string) {
   return `*YOUR RIDE HAS BEEN ACCEPTED*🚖\n\n*Rider details*\nName: *${name}*\nPhone: ${phone}\n\nHave a SAFE RIDE!\n\n⚠️  To return back to *MENU*, reply with *447*`;
 }
 

@@ -72,10 +72,7 @@ export const userRequest = async (req: Request, res: Response) => {
         );
         res.status(200).send("Request successful!");
       } else {
-        await sendMessage(
-          recipientPhone,
-          "🙏THANK YOU for considering registering as a *Vrom Rider*.\n\nYour registration process will begin shortly."
-        );
+     
         userDetails!.state = "registeringAsARider";
         userDetails!.processingState = "1";
         const saveDetails = await userDetails!.save();
