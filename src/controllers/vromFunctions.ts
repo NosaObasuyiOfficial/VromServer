@@ -341,7 +341,7 @@ export const userRequest = async (req: Request, res: Response) => {
                   riderRegisterationAlert(
                     riderReq!.name,
                     riderReq!.phone,
-                    riderReq!.licenseNo,
+                    riderReq!.licenseNo.toUpperCase(),
                     riderReq!.registeredAt,
                     riderReq!.code.toUpperCase()
                   )
