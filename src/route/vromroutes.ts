@@ -3,6 +3,6 @@ import { userRequest } from "../controllers/vromFunctions.js"
 
 const router = Router();
 
-router.post("/webhook", userRequest)
+router.post("/", userRequest)
 
 export default router;

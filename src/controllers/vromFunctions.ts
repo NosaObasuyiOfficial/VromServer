@@ -14,6 +14,7 @@ import {
   locationPromptMessage,
   rideNotification,
   userRideNotification,
+  riderRideNotification,
 } from "../utilities/menuMessage.js";
 import {
   generateUniqueACCode,
@@ -148,7 +149,6 @@ export const userRequest = async (req: Request, res: Response) => {
 
       await SuccessfulOrder.findOneAndDelete({ userPhone: recipientPhone });
       res.status(200).send("Request successful!");
-
     } else if (
       `${whatsappMessage.split("")[0]}${whatsappMessage.split("")[1]}` ===
         "vr" &&
@@ -163,11 +163,16 @@ export const userRequest = async (req: Request, res: Response) => {
           code: whatsappMessage,
         });
         if (!riderDetails) {
-          await sendMessage(recipientPhone, `*Incorrect code*.`);
+          await sendMessage(recipientPhone, `*Incorrect code or Rider has already been accepted*.`);
           res.status(500).send("Failed to find rider details");
         }
 
         if (riderDetails!.code.toLowerCase() === whatsappMessage) {
+          await sendMessage(
+            recipientPhone,
+            `✅*RIDER APPROVED*\n\n${riderDetails!.name}\n${riderDetails!.licenseNo}\n${riderDetails!.phone}`
+          );
+
           await sendMessage(
             riderDetails!.phone,
             `*CONGRATULATIONS! You have been registered as a Vrom Rider*🏍️.\n\nSAFETY FIRST ALWAYS!!!.`
@@ -222,12 +227,21 @@ export const userRequest = async (req: Request, res: Response) => {
       if (!rideDets) {
         await sendMessage(
           riderDetails!.phone,
-          `*Invalid code*`
+          `*Ride request hsa already been accepted*`
         );
         res.status(500).send("Failed to find ride order details");
       }
 
       if (acceptCode === rideDets!.acceptCode) {
+        sendMessage(
+          recipientPhone,
+          riderRideNotification(
+            rideDets!.location,
+            rideDets!.destination,
+            rideDets!.userPhone
+          )
+        );
+
         sendMessage(
           rideDets!.userPhone,
           userRideNotification(riderDetails!.name, riderDetails!.phone)
@@ -243,14 +257,13 @@ export const userRequest = async (req: Request, res: Response) => {
           res.status(500).send("Failed to add successful order");
         }
 
-           await User.findOneAndUpdate(
-              { phone: rideDets!.userPhone },
-              { rideRequest: "4" }
-            );
+        await User.findOneAndUpdate(
+          { phone: rideDets!.userPhone },
+          { rideRequest: "4" }
+        );
 
         await RideOrder.findOneAndDelete({ acceptCode });
         res.status(200).send("Request successful!");
-
       } else {
         await sendMessage(riderDetails!.phone, `*Invalid code*`);
         res.status(500).send("Failed to find rider details");
@@ -312,7 +325,7 @@ export const userRequest = async (req: Request, res: Response) => {
               res.status(500).send("Failed to save user details");
             }
 
-            const code = await generateUniqueACCode();            
+            const code = await generateUniqueACCode();
             const registeredAt = formatDate();
 
             await riderRequest.findOneAndUpdate(
@@ -431,8 +444,7 @@ export const userRequest = async (req: Request, res: Response) => {
             "*Thank you for choosing Vrom.*\nPlease wait while we assign you a rider.\n\nIf you wish to cancel this process, reply with 439 ❌"
           );
           res.status(200).send("Request successful!");
-        }
-        else if (
+        } else if (
           userDetails!.state === "RequestingARide" &&
           userDetails!.rideRequest === "4"
         ) {
