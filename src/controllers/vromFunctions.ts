@@ -75,7 +75,7 @@ export const userRequest = async (req: Request, res: Response) => {
       ) {
         await sendMessage(
           recipientPhone,
-          `*CONGRATULATIONS! You have been registered as a *Vrom Rider🏍️.\n\nSAFETY FIRST ALWAYS!!!*.`
+          `*CONGRATULATIONS!* You have been registered as a *Vrom Rider* 🏍️.\n\nSAFETY FIRST ALWAYS!`
         );
         res.status(200).send("Request successful!");
       } else {
@@ -393,17 +393,16 @@ export const userRequest = async (req: Request, res: Response) => {
           userDetails!.state === "RequestingARide" &&
           userDetails!.rideRequest === "2"
         ) {
-          const availablePhones = await Rider.find(
-            { status: "available" },
-            "phone"
-          ).lean();
+          const availablePhones = await Rider.find({}, "phone").lean();
 
           const userDestination = whatsappMessage;
+                console.log("aaaaa")
           if (userDestination.length < 4) {
             await sendMessage(recipientPhone, destinationPromptMessage);
             res.status(400).send("Invalid location");
           } else {
             const acceptCode = await generateAcceptCode();
+                console.log("bbbbb")
 
             await RideOrder.findOneAndUpdate(
               { userPhone: recipientPhone },
@@ -419,7 +418,9 @@ export const userRequest = async (req: Request, res: Response) => {
               userPhone: recipientPhone,
             });
 
-            const riderPhoneNumbers = availablePhones.map((r) => r.phone);
+            console.log("gotcahs")
+
+            const riderPhoneNumbers = availablePhones.map((r) => r!.phone);
 
             await Promise.all(
               riderPhoneNumbers.map((num) =>
