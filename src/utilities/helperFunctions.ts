@@ -3,9 +3,11 @@ import RideOrder from "../database/databaseModel/rideOrder.js";
 
 export async function generateUniqueACCode(): Promise<string> {
   function generate4Digit(): string {
-    const randomNumber = Math.floor(1000 + Math.random() * 9000);
-    return `vr${randomNumber}`;
+    const randomNumber = Math.floor(100 + Math.random() * 900);
+    return `r${randomNumber}`;
   }
+  const newDigits = generate4Digit();
+  return newDigits;
 
   // let code: string;
   // let exists = true;
@@ -18,9 +20,6 @@ export async function generateUniqueACCode(): Promise<string> {
   // }
 
   // return code!;
-
-   const newDigits = generate4Digit();
-    return newDigits;
 }
 
 export function formatDate(date: Date = new Date()): string {
@@ -72,9 +71,11 @@ export function formatDate(date: Date = new Date()): string {
 
 export async function generateAcceptCode(): Promise<string> {
   function generate4Digit(): string {
-    const randomNumber = Math.floor(1000 + Math.random() * 9000);
-    return `ac${randomNumber}`;
+    const randomNumber = Math.floor(100 + Math.random() * 900);
+    return `a${randomNumber}`;
   }
+  const newDigits = generate4Digit();
+  return newDigits;
 
   // let acceptCode: string;
   // let exists = true;
@@ -87,7 +88,4 @@ export async function generateAcceptCode(): Promise<string> {
   // }
 
   // return acceptCode!;
-
-  const newDigits = generate4Digit();
-  return newDigits;
 }

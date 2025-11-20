@@ -15,6 +15,9 @@ import {
   rideNotification,
   userRideNotification,
   riderRideNotification,
+  locationMessage,
+  destinationMessage,
+  destinationPromptMessage,
 } from "../utilities/menuMessage.js";
 import {
   generateUniqueACCode,
@@ -32,7 +35,7 @@ const {
   ADMIN_WHATSAPP_NUMBER3,
 } = process.env;
 
-const admin = [ADMIN_WHATSAPP_NUMBER1!];
+const admin = [ADMIN_WHATSAPP_NUMBER1!, ADMIN_WHATSAPP_NUMBER2!, ADMIN_WHATSAPP_NUMBER3!];
 
 export const userRequest = async (req: Request, res: Response) => {
   try {
@@ -72,7 +75,6 @@ export const userRequest = async (req: Request, res: Response) => {
         );
         res.status(200).send("Request successful!");
       } else {
-     
         userDetails!.state = "registeringAsARider";
         userDetails!.processingState = "1";
         const saveDetails = await userDetails!.save();
@@ -97,10 +99,7 @@ export const userRequest = async (req: Request, res: Response) => {
       if (!order) {
         res.status(500).send("Failed to add ride order");
       }
-      await sendMessage(
-        recipientPhone,
-        "*Please reply with your current location.*\n📍 Example: Wisdom Lake, Off…\n\nIf you wish to cancel this process, reply with 439 ❌"
-      );
+      await sendMessage(recipientPhone, locationMessage);
 
       userDetails!.state = "RequestingARide";
       userDetails!.rideRequest = "1";
@@ -112,7 +111,7 @@ export const userRequest = async (req: Request, res: Response) => {
       res.status(200).send("Request successful!");
     } else if (whatsappMessage === "3" && userDetails) {
       await sendMessage(recipientPhone, helpMessage);
-    } else if (whatsappMessage === "409" && userDetails) {
+    } else if (whatsappMessage === "0" && userDetails) {
       userDetails!.state = "menu";
       userDetails!.processingState = "1";
       const saveDetails = await userDetails!.save();
@@ -123,7 +122,7 @@ export const userRequest = async (req: Request, res: Response) => {
 
       await riderRequest.findOneAndDelete({ phone: recipientPhone });
       res.status(200).send("Request successful!");
-    } else if (whatsappMessage === "439" && userDetails) {
+    } else if (whatsappMessage === "9" && userDetails) {
       userDetails!.state = "menu";
       userDetails!.rideRequest = "";
       const saveDetails = await userDetails!.save();
@@ -134,7 +133,7 @@ export const userRequest = async (req: Request, res: Response) => {
 
       await RideOrder.findOneAndDelete({ userPhone: recipientPhone });
       res.status(200).send("Request successful!");
-    } else if (whatsappMessage === "447" && userDetails) {
+    } else if (whatsappMessage === "7" && userDetails) {
       userDetails!.state = "menu";
       userDetails!.rideRequest = "";
 
@@ -146,19 +145,15 @@ export const userRequest = async (req: Request, res: Response) => {
 
       await SuccessfulOrder.findOneAndDelete({ userPhone: recipientPhone });
       res.status(200).send("Request successful!");
-    } 
-    else if (whatsappMessage === "319" && userDetails) {
-
-      await sendMessage(recipientPhone, "*Your RIDER PROFILE has been deleted. You are no longer a Vrom rider.*");
+    } else if (whatsappMessage === "319" && userDetails) {
+      await sendMessage(
+        recipientPhone,
+        "*Your RIDER PROFILE has been deleted. You are no longer a Vrom rider.*"
+      );
 
       await Rider.findOneAndDelete({ phone: recipientPhone });
       res.status(200).send("Request successful!");
-    } 
-    else if (
-      `${whatsappMessage.split("")[0]}${whatsappMessage.split("")[1]}` ===
-        "vr" &&
-      userDetails
-    ) {
+    } else if (`${whatsappMessage.split("")[0]}` === "r" && userDetails) {
       if (
         recipientPhone === ADMIN_WHATSAPP_NUMBER1! ||
         recipientPhone === ADMIN_WHATSAPP_NUMBER2! ||
@@ -168,14 +163,19 @@ export const userRequest = async (req: Request, res: Response) => {
           code: whatsappMessage,
         });
         if (!riderDetails) {
-          await sendMessage(recipientPhone, `*Incorrect code or User has already been approved as a rider*`);
+          await sendMessage(
+            recipientPhone,
+            `*Incorrect code or User has already been approved as a rider*`
+          );
           res.status(500).send("Failed to find rider details");
         }
 
         if (riderDetails!.code.toLowerCase() === whatsappMessage) {
           await sendMessage(
             recipientPhone,
-            `✅ *RIDER APPROVED* \n\n${riderDetails!.name}\n${riderDetails!.licenseNo.toUpperCase()}\n${riderDetails!.phone}`
+            `✅ *RIDER APPROVED* \n\n${
+              riderDetails!.name
+            }\n${riderDetails!.licenseNo.toUpperCase()}\n${riderDetails!.phone}`
           );
 
           await sendMessage(
@@ -210,11 +210,7 @@ export const userRequest = async (req: Request, res: Response) => {
         );
         res.status(401).send("Request successful!");
       }
-    } else if (
-      `${whatsappMessage.split("")[0]}${whatsappMessage.split("")[1]}` ===
-        "ac" &&
-      userDetails
-    ) {
+    } else if (`${whatsappMessage.split("")[0]}` === "a" && userDetails) {
       const acceptCode = whatsappMessage;
       let riderDetails = await Rider.findOne({
         phone: recipientPhone,
@@ -249,7 +245,11 @@ export const userRequest = async (req: Request, res: Response) => {
 
         sendMessage(
           rideDets!.userPhone,
-          userRideNotification(riderDetails!.name, riderDetails!.phone)
+          userRideNotification(
+            riderDetails!.name,
+            riderDetails!.phone,
+            riderDetails!.licenseNo
+          )
         );
 
         const addOrder = await SuccessfulOrder.create({
@@ -373,10 +373,7 @@ export const userRequest = async (req: Request, res: Response) => {
               { location: userLocation }
             );
 
-            await sendMessage(
-              recipientPhone,
-              "*Please reply with your destination.*\n📍 Example: Wisdom Lake, Off…\n\nIf you wish to cancel this process, reply with 439 ❌"
-            );
+            await sendMessage(recipientPhone, destinationMessage);
 
             userDetails!.rideRequest = "2";
             const saveDetails = await userDetails!.save();
@@ -392,7 +389,7 @@ export const userRequest = async (req: Request, res: Response) => {
         ) {
           const userDestination = whatsappMessage;
           if (userDestination.length < 4) {
-            await sendMessage(recipientPhone, locationPromptMessage);
+            await sendMessage(recipientPhone, destinationPromptMessage);
             res.status(400).send("Invalid location");
           } else {
             const acceptCode = await generateAcceptCode();
@@ -404,7 +401,7 @@ export const userRequest = async (req: Request, res: Response) => {
 
             await sendMessage(
               recipientPhone,
-              "*Thank you for choosing Vrom.*\nPlease wait while we assign you a rider.\n\nIf you wish to cancel this process, reply with 439 ❌"
+              "*Thank you for choosing Vrom.*\nPlease wait while we assign you a rider.\n\nIf you wish to cancel this process, reply with *9* ❌"
             );
 
             const order = await RideOrder.findOne({
@@ -446,7 +443,7 @@ export const userRequest = async (req: Request, res: Response) => {
         ) {
           await sendMessage(
             recipientPhone,
-            "*Thank you for choosing Vrom.*\nPlease wait while we assign you a rider.\n\nIf you wish to cancel this process, reply with 439 ❌"
+            "*Thank you for choosing Vrom.*\nPlease wait while we assign you a rider.\n\nIf you wish to cancel this process, reply with *9* ❌"
           );
           res.status(200).send("Request successful!");
         } else if (
@@ -455,7 +452,7 @@ export const userRequest = async (req: Request, res: Response) => {
         ) {
           await sendMessage(
             recipientPhone,
-            "To return back to *MENU*, reply with *447*"
+            "To return back to *MENU*, reply with *7*"
           );
           res.status(200).send("Request successful!");
         }
