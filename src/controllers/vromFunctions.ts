@@ -35,7 +35,11 @@ const {
   ADMIN_WHATSAPP_NUMBER3,
 } = process.env;
 
-const admin = [ADMIN_WHATSAPP_NUMBER1!, ADMIN_WHATSAPP_NUMBER2!, ADMIN_WHATSAPP_NUMBER3!];
+const admin = [
+  ADMIN_WHATSAPP_NUMBER1!,
+  ADMIN_WHATSAPP_NUMBER2!,
+  ADMIN_WHATSAPP_NUMBER3!,
+];
 
 export const userRequest = async (req: Request, res: Response) => {
   try {
@@ -168,40 +172,42 @@ export const userRequest = async (req: Request, res: Response) => {
             `*Incorrect code or User has already been approved as a rider*`
           );
           res.status(500).send("Failed to find rider details");
-        }
-
-        if (riderDetails!.code.toLowerCase() === whatsappMessage) {
-          await sendMessage(
-            recipientPhone,
-            `✅ *RIDER APPROVED* \n\n${
-              riderDetails!.name
-            }\n${riderDetails!.licenseNo.toUpperCase()}\n${riderDetails!.phone}`
-          );
-
-          await sendMessage(
-            riderDetails!.phone,
-            `*CONGRATULATIONS! You have been registered as a Vrom Rider*🏍️\n\nSAFETY FIRST ALWAYS!!!`
-          );
-
-          await User.findOneAndUpdate(
-            { phone: riderDetails!.phone },
-            { status: "rider", processingState: "4" }
-          );
-
-          const addRider = await Rider.create({
-            name: riderDetails!.name,
-            phone: riderDetails!.phone,
-            licenseNo: riderDetails!.licenseNo,
-          });
-          if (!addRider) {
-            res.status(500).send("Failed to add new rider");
-          }
-
-          await riderRequest.findOneAndDelete({ phone: riderDetails!.phone });
-          res.status(200).send("Request successful!");
         } else {
-          await sendMessage(recipientPhone, `*Incorrect code*`);
-          res.status(400).send("Wrong code");
+          if (riderDetails!.code.toLowerCase() === whatsappMessage) {
+            await sendMessage(
+              recipientPhone,
+              `✅ *RIDER APPROVED* \n\n${
+                riderDetails!.name
+              }\n${riderDetails!.licenseNo.toUpperCase()}\n${
+                riderDetails!.phone
+              }`
+            );
+
+            await sendMessage(
+              riderDetails!.phone,
+              `*CONGRATULATIONS! You have been registered as a Vrom Rider*🏍️\n\nSAFETY FIRST ALWAYS!!!`
+            );
+
+            await User.findOneAndUpdate(
+              { phone: riderDetails!.phone },
+              { status: "rider", processingState: "4" }
+            );
+
+            const addRider = await Rider.create({
+              name: riderDetails!.name,
+              phone: riderDetails!.phone,
+              licenseNo: riderDetails!.licenseNo,
+            });
+            if (!addRider) {
+              res.status(500).send("Failed to add new rider");
+            }
+
+            await riderRequest.findOneAndDelete({ phone: riderDetails!.phone });
+            res.status(200).send("Request successful!");
+          } else {
+            await sendMessage(recipientPhone, `*Incorrect code*`);
+            res.status(400).send("Wrong code");
+          }
         }
       } else {
         await sendMessage(
@@ -222,56 +228,56 @@ export const userRequest = async (req: Request, res: Response) => {
           `*SORRY! You are not authorized to make this request*.`
         );
         res.status(500).send("Failed to find rider details");
-      }
-
-      let rideDets = await RideOrder.findOne({ acceptCode });
-      if (!rideDets) {
-        await sendMessage(
-          riderDetails!.phone,
-          `*Incorrect code or Ride request has already been accepted*`
-        );
-        res.status(500).send("Failed to find ride order details");
-      }
-
-      if (acceptCode === rideDets!.acceptCode) {
-        sendMessage(
-          recipientPhone,
-          riderRideNotification(
-            rideDets!.location,
-            rideDets!.destination,
-            rideDets!.userPhone
-          )
-        );
-
-        sendMessage(
-          rideDets!.userPhone,
-          userRideNotification(
-            riderDetails!.name,
-            riderDetails!.phone,
-            riderDetails!.licenseNo.toUpperCase()
-          )
-        );
-
-        const addOrder = await SuccessfulOrder.create({
-          userPhone: rideDets!.userPhone,
-          location: rideDets!.location,
-          destination: rideDets!.destination,
-          riderPhone: riderDetails!.phone,
-        });
-        if (!addOrder) {
-          res.status(500).send("Failed to add successful order");
-        }
-
-        await User.findOneAndUpdate(
-          { phone: rideDets!.userPhone },
-          { rideRequest: "4" }
-        );
-
-        await RideOrder.findOneAndDelete({ acceptCode });
-        res.status(200).send("Request successful!");
       } else {
-        await sendMessage(riderDetails!.phone, `*Invalid code*`);
-        res.status(500).send("Failed to find rider details");
+        let rideDets = await RideOrder.findOne({ acceptCode });
+        if (!rideDets) {
+          await sendMessage(
+            riderDetails!.phone,
+            `*Incorrect code or Ride request has already been accepted*`
+          );
+          res.status(500).send("Failed to find ride order details");
+        } else {
+          if (acceptCode === rideDets!.acceptCode) {
+            sendMessage(
+              recipientPhone,
+              riderRideNotification(
+                rideDets!.location,
+                rideDets!.destination,
+                rideDets!.userPhone
+              )
+            );
+
+            sendMessage(
+              rideDets!.userPhone,
+              userRideNotification(
+                riderDetails!.name,
+                riderDetails!.phone,
+                riderDetails!.licenseNo.toUpperCase()
+              )
+            );
+
+            const addOrder = await SuccessfulOrder.create({
+              userPhone: rideDets!.userPhone,
+              location: rideDets!.location,
+              destination: rideDets!.destination,
+              riderPhone: riderDetails!.phone,
+            });
+            if (!addOrder) {
+              res.status(500).send("Failed to add successful order");
+            }
+
+            await User.findOneAndUpdate(
+              { phone: rideDets!.userPhone },
+              { rideRequest: "4" }
+            );
+
+            await RideOrder.findOneAndDelete({ acceptCode });
+            res.status(200).send("Request successful!");
+          } else {
+            await sendMessage(riderDetails!.phone, `*Invalid code*`);
+            res.status(500).send("Failed to find rider details");
+          }
+        }
       }
     } else {
       if (!userDetails) {
@@ -387,10 +393,10 @@ export const userRequest = async (req: Request, res: Response) => {
           userDetails!.state === "RequestingARide" &&
           userDetails!.rideRequest === "2"
         ) {
-            const availablePhones = await Rider.find(
-              { status: "available" },
-              "phone"
-            ).lean();
+          const availablePhones = await Rider.find(
+            { status: "available" },
+            "phone"
+          ).lean();
 
           const userDestination = whatsappMessage;
           if (userDestination.length < 4) {
