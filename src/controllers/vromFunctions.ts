@@ -387,6 +387,11 @@ export const userRequest = async (req: Request, res: Response) => {
           userDetails!.state === "RequestingARide" &&
           userDetails!.rideRequest === "2"
         ) {
+            const availablePhones = await Rider.find(
+              { status: "available" },
+              "phone"
+            ).lean();
+
           const userDestination = whatsappMessage;
           if (userDestination.length < 4) {
             await sendMessage(recipientPhone, destinationPromptMessage);
@@ -407,11 +412,6 @@ export const userRequest = async (req: Request, res: Response) => {
             const order = await RideOrder.findOne({
               userPhone: recipientPhone,
             });
-
-            const availablePhones = await Rider.find(
-              { status: "available" },
-              "phone"
-            ).lean();
 
             const riderPhoneNumbers = availablePhones.map((r) => r.phone);
 
