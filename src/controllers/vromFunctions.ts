@@ -157,7 +157,7 @@ export const userRequest = async (req: Request, res: Response) => {
 
       await Rider.findOneAndDelete({ phone: recipientPhone });
       res.status(200).send("Request successful!");
-    } else if (`${whatsappMessage.split("")[0]}` === "r" && userDetails) {
+    } else if (`${whatsappMessage.split("")[0]}` === "r" && userDetails && userDetails!.state === "menu") {
       if (
         recipientPhone === ADMIN_WHATSAPP_NUMBER1! ||
         recipientPhone === ADMIN_WHATSAPP_NUMBER2! ||
@@ -216,7 +216,7 @@ export const userRequest = async (req: Request, res: Response) => {
         );
         res.status(401).send("Request successful!");
       }
-    } else if (`${whatsappMessage.split("")[0]}` === "a" && userDetails) {
+    } else if (`${whatsappMessage.split("")[0]}` === "a" && userDetails && userDetails!.state === "menu" ) {
       const acceptCode = whatsappMessage;
       let riderDetails = await Rider.findOne({
         phone: recipientPhone,
@@ -396,13 +396,11 @@ export const userRequest = async (req: Request, res: Response) => {
           const availablePhones = await Rider.find({}, "phone").lean();
 
           const userDestination = whatsappMessage;
-                console.log("aaaaa")
           if (userDestination.length < 4) {
             await sendMessage(recipientPhone, destinationPromptMessage);
             res.status(400).send("Invalid location");
           } else {
             const acceptCode = await generateAcceptCode();
-                console.log("bbbbb")
 
             await RideOrder.findOneAndUpdate(
               { userPhone: recipientPhone },
@@ -417,8 +415,6 @@ export const userRequest = async (req: Request, res: Response) => {
             const order = await RideOrder.findOne({
               userPhone: recipientPhone,
             });
-
-            console.log("gotcahs")
 
             const riderPhoneNumbers = availablePhones.map((r) => r!.phone);
 
