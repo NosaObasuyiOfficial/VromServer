@@ -38,7 +38,7 @@ export function riderRegisterationAlert(
   registrationDate: string,
   code: string
 ) {
-  return `*New Rider Registration Request*🚖\n\nName: ${name}\nPhone: ${phone}\nLicense No: ${licenseNo}\nRequested At: ${registrationDate}\n\n✔️ To accept, send *${code}*`;
+  return `*New Rider Registration Request*🚖\n\nName: *${name}*\nPhone: ${phone}\nLicense No: *${licenseNo}*\nRequested At: ${registrationDate}\n\n✔️ To accept, send *${code}*`;
 }
 
 export const locationPromptMessage =

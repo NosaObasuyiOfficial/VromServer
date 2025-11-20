@@ -248,7 +248,7 @@ export const userRequest = async (req: Request, res: Response) => {
           userRideNotification(
             riderDetails!.name,
             riderDetails!.phone,
-            riderDetails!.licenseNo
+            riderDetails!.licenseNo.toUpperCase()
           )
         );
 
