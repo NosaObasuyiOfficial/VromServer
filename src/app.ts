@@ -1,11 +1,12 @@
+import dotenv from "dotenv";
 import express from "express";
 import bodyParser from "body-parser";
-import dotenv from "dotenv";
-import { connectDatabase } from "./database/connectDatabase.js";
-import vromroutes from "./route/vromroutes.js";
+import { connectDatabase } from "./database/connectDatabase";
+import vromroutes from "./route/vromroutes";
 import logger from "morgan"
 
 dotenv.config();
+
 connectDatabase();
 
 const app = express();

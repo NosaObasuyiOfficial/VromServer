@@ -1,5 +1,3 @@
-import riderRequest from "../database/databaseModel/riderRequest.js";
-import RideOrder from "../database/databaseModel/rideOrder.js";
 
 export async function generateUniqueACCode(): Promise<string> {
   function generate4Digit(): string {
@@ -9,17 +7,6 @@ export async function generateUniqueACCode(): Promise<string> {
   const newDigits = generate4Digit();
   return newDigits;
 
-  // let code: string;
-  // let exists = true;
-
-  // while (exists) {
-  //   const newDigits = generate4Digit();
-  //   code = newDigits;
-
-  //   await riderRequest.exists({ code });
-  // }
-
-  // return code!;
 }
 
 export function formatDate(date: Date = new Date()): string {
@@ -77,15 +64,4 @@ export async function generateAcceptCode(): Promise<string> {
   const newDigits = generate4Digit();
   return newDigits;
 
-  // let acceptCode: string;
-  // let exists = true;
-
-  // while (exists) {
-  //   const newDigits = generate4Digit();
-  //   acceptCode = newDigits;
-
-  //   await RideOrder.exists({ acceptCode });
-  // }
-
-  // return acceptCode!;
 }
